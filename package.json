@@ -15,8 +15,10 @@
     "cors": "^2.8.1",
     "dotenv": "^4.0.0",
     "express": "^4.14.1",
+    "express-session": "^1.15.3",
     "helmet": "^3.4.0",
     "mongodb": "^2.2.22",
+    "passport": "^0.3.2",
     "pug": "^2.0.0-rc.1"
   },
   "engines": {
