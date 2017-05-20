@@ -10,6 +10,9 @@ const passport = require('passport');
 const ObjectID = require('mongodb').ObjectID;
 const mongo = require('mongodb').MongoClient;
 
+const LocalStrategy = require('passport-local');
+
+
 mongo.connect(process.env.DATABASE, (err, db) => {
   if(err) {
     console.log('Database error: ' + err);
@@ -21,11 +24,24 @@ mongo.connect(process.env.DATABASE, (err, db) => {
       done(null, user._id);
     });
 
-    passport.deserializeUser((id, done) => { 
+    passport.deserializeUser((id, done) => {
       db.collection('users').findOne({ _id: new ObjectID(id) }, (err, doc) => {
         done(null, doc);
       });
     });
+
+    // Authentication Strategies
+    passport.use(new LocalStrategy(
+      function(username, password, done) {
+        db.collection('users').findOne({ username: username }, function (err, user) {
+          console.log('User '+ username +' attempted to log in.');
+          if (err) { return done(err); }
+          if (!user) { return done(null, false); }
+          if (password !== user.password) { return done(null, false); }
+          return done(null, user);
+        });
+      }
+    ));
 
     app.listen(process.env.PORT || 3000, () => {
       console.log("Listening on port " + process.env.PORT);
