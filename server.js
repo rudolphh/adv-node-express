@@ -78,6 +78,11 @@ app.route('/')
     res.render(process.cwd() + '/views/pug/index.pug', pageVars);
 });
 
+app.route('/profile')
+  .get((req, res) => {
+    res.render(process.cwd() + '/views/pug/profile.pug', { username: req.user.username });
+});
+
 app.post('/login', passport.authenticate('local', { failureRedirect: '/' }),
   function(req, res){
     res.redirect('/profile');
