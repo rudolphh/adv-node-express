@@ -83,3 +83,16 @@ app.post('/login', passport.authenticate('local', { failureRedirect: '/' }),
     res.redirect('/profile');
   }
 );
+
+// creating the middleware function ensureAuthenticated
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+      return next();
+  }
+  res.redirect('/');
+};
+
+app.route('/profile')
+  .get(ensureAuthenticated, (req,res) => {
+       res.render(process.cwd() + '/views/pug/profile');
+  });
