@@ -78,16 +78,11 @@ app.route('/')
     res.render(process.cwd() + '/views/pug/index.pug', pageVars);
 });
 
-app.route('/profile')
+app.route('/logout')
   .get((req, res) => {
-    res.render(process.cwd() + '/views/pug/profile.pug', { username: req.user.username });
-});
-
-app.post('/login', passport.authenticate('local', { failureRedirect: '/' }),
-  function(req, res){
-    res.redirect('/profile');
-  }
-);
+      req.logout();
+      res.redirect('/');
+  });
 
 // creating the middleware function ensureAuthenticated
 function ensureAuthenticated(req, res, next) {
@@ -99,5 +94,20 @@ function ensureAuthenticated(req, res, next) {
 
 app.route('/profile')
   .get(ensureAuthenticated, (req,res) => {
-       res.render(process.cwd() + '/views/pug/profile');
+       res.render(process.cwd() + '/views/pug/profile', { username: req.user.username });
   });
+
+
+app.post('/login', passport.authenticate('local', { failureRedirect: '/' }),
+  function(req, res){
+    res.redirect('/profile');
+  }
+);
+
+
+
+app.use((req, res, next) => {
+  res.status(404)
+    .type('text')
+    .send('Not Found');
+});
