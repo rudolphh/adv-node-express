@@ -67,7 +67,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('view engine', 'pug');
 
+const pageVars = {
+  title: 'Hello',
+  message: 'Please login',
+  showLogin: true
+};
+
 app.route('/')
   .get((req, res) => {
-    res.render(process.cwd() + '/views/pug/index.pug', { title: 'Hello', message: 'Please login' });
-  });
+    res.render(process.cwd() + '/views/pug/index.pug', pageVars);
+});
+
+app.post('/login', passport.authenticate('local', { failureRedirect: '/' }),
+  function(req, res){
+    res.redirect('/profile');
+  }
+);
