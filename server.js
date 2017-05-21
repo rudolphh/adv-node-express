@@ -7,10 +7,7 @@ const dotenv = require('dotenv').load();
 const session = require('express-session');
 const passport = require('passport');
 
-const ObjectID = require('mongodb').ObjectID;
 const mongo = require('mongodb').MongoClient;
-
-const bcrypt = require('bcrypt');
 
 const routes = require('./routes');
 const auth = require('./auth');

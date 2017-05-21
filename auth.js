@@ -1,9 +1,11 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const ObjectID = require('mongodb').ObjectID;
+const bcrypt = require('bcrypt');
 
 module.exports = function (app, db) {
 
-  //serialization and app.listen
+  //serialization 
   passport.serializeUser((user, done) => {
     done(null, user._id);
   });
