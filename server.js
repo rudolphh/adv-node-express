@@ -12,6 +12,8 @@ const mongo = require('mongodb').MongoClient;
 
 const LocalStrategy = require('passport-local');
 
+const bcrypt = require('bcrypt');
+
 var theDB;
 
 mongo.connect(process.env.DATABASE, (err, db) => {
@@ -39,7 +41,7 @@ mongo.connect(process.env.DATABASE, (err, db) => {
           console.log('User '+ username +' attempted to log in.');
           if (err) { return done(err); }
           if (!user) { return done(null, false); }
-          if (password !== user.password) { return done(null, false); }
+          if (!bcrypt.compareSync(password, user.password)) { return done(null, false); }
           return done(null, user);
         });
       }
@@ -115,17 +117,19 @@ app.route('/register')
           } else if (user) {
               res.redirect('/');
           } else {
-              theDB.collection('users').insertOne(
-                {username: req.body.username,
-                 password: req.body.password},
-                (err, doc) => {
-                    if(err) {
-                        res.redirect('/');
-                    } else {
-                        next(null, user);
-                    }
-                }
-              )
+            var hash = bcrypt.hashSync(req.body.password, 8);
+
+            theDB.collection('users').insertOne(
+              {username: req.body.username,
+               password: hash},
+              (err, doc) => {
+                  if(err) {
+                      res.redirect('/');
+                  } else {
+                      next(null, user);
+                  }
+              }
+            )
           }
       })},
     passport.authenticate('local', { failureRedirect: '/' }),
