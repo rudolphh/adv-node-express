@@ -12,12 +12,14 @@ const mongo = require('mongodb').MongoClient;
 
 const LocalStrategy = require('passport-local');
 
+var theDB;
 
 mongo.connect(process.env.DATABASE, (err, db) => {
   if(err) {
     console.log('Database error: ' + err);
   } else {
     console.log('Successful database connection');
+    theDB = db;
 
     //serialization and app.listen
     passport.serializeUser((user, done) => {
@@ -70,7 +72,8 @@ app.set('view engine', 'pug');
 const pageVars = {
   title: 'Hello',
   message: 'Please login',
-  showLogin: true
+  showLogin: true,
+  showRegistration: true
 };
 
 app.route('/')
@@ -104,6 +107,32 @@ app.post('/login', passport.authenticate('local', { failureRedirect: '/' }),
   }
 );
 
+app.route('/register')
+  .post((req, res, next) => {
+      theDB.collection('users').findOne({ username: req.body.username }, function (err, user) {
+          if(err) {
+              next(err);
+          } else if (user) {
+              res.redirect('/');
+          } else {
+              theDB.collection('users').insertOne(
+                {username: req.body.username,
+                 password: req.body.password},
+                (err, doc) => {
+                    if(err) {
+                        res.redirect('/');
+                    } else {
+                        next(null, user);
+                    }
+                }
+              )
+          }
+      })},
+    passport.authenticate('local', { failureRedirect: '/' }),
+    (req, res, next) => {
+        res.redirect('/profile');
+    }
+);
 
 
 app.use((req, res, next) => {
